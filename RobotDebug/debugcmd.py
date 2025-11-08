@@ -160,7 +160,10 @@ Access https://github.com/imbus/robotframework-debug for more details.\
             if lib:
                 print_output("< Keywords of library", lib.name)
                 for keyword in get_lib_keywords(lib):
-                    print_output(f"   {keyword.name}\t", keyword.shortdoc)
+                    shortdoc = ""
+                    if hasattr(keyword, "shortdoc"):
+                        shortdoc = keyword.shortdoc.split("\n")[0]
+                    print_output(f"   {keyword.name}\t", shortdoc)
 
     do_k = do_keywords
 
