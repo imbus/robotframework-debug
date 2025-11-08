@@ -1,6 +1,6 @@
 include ChangeLog
 include LICENSE
-include README.rst
+include readme.md
 
 # added by check-manifest
 include *.yml
