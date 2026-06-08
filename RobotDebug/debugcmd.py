@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import difflib
 import os
 import time
@@ -159,7 +161,11 @@ Access https://github.com/imbus/robotframework-debug for more details.\
             if lib:
                 print_output("< Keywords of library", lib.name)
                 for keyword in get_lib_keywords(lib):
-                    print_output(f"   {keyword.name}\t", keyword.short_doc)
+                    # ``short_doc`` is RF >= 7; ``shortdoc`` on older releases.
+                    short_doc = getattr(keyword, "short_doc", None) or getattr(
+                        keyword, "shortdoc", ""
+                    )
+                    print_output(f"   {keyword.name}\t", short_doc)
 
     do_k = do_keywords
 

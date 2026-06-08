@@ -18,3 +18,5 @@ TODO
 htmlcov
 coverage.xml
 coverage.json
+results
+.matrix

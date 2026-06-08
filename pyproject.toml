@@ -1,3 +1,60 @@
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "robotframework-debug"
+dynamic = ["version", "description"]
+readme = "readme.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "René Rohner", email = "snooz@posteo.de" }]
+keywords = ["robotframework", "debug", "shell", "repl"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "License :: OSI Approved :: BSD License",
+  "Natural Language :: English",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Utilities",
+  "Framework :: Robot Framework",
+]
+dependencies = [
+  "prompt-toolkit >= 3.0.38",
+  "robotframework >= 5.0, < 8.0",
+  "pygments >= 2.14.0",
+  "pyperclip >= 1.8.2",
+]
+
+[project.optional-dependencies]
+dev = [
+  "invoke >= 2.0",
+  "ruff >= 0.4",
+  "black >= 24.0",
+  "pexpect >= 4.8",
+  "flit >= 3.4",
+]
+
+[project.urls]
+Homepage = "https://github.com/imbus/robotframework-debug/"
+Repository = "https://github.com/imbus/robotframework-debug/"
+Issues = "https://github.com/imbus/robotframework-debug/issues"
+
+[project.scripts]
+irobot = "RobotDebug.shell:shell"
+robotdebug = "RobotDebug.shell:shell"
+
+[tool.flit.module]
+name = "RobotDebug"
+
+[tool.flit.sdist]
+include = ["readme.md", "LICENSE", "ChangeLog", "tasks.py", "tests/"]
+exclude = [".matrix/", "**/__pycache__/", "tests/atest/**/__pycache__/"]
+
 [tool.black]
 target-version = ['py310']
 line-length = 100
@@ -20,7 +77,9 @@ lint.ignore = [
   "N812",  # lowercase imported as non lowercase
   "N999",  # Invalid module name: 'Browser'
   "PLR0913",  # too many arguments
+  "PLC0415",  # imports not at top level (intentional lazy imports avoid cycles)
 ]
+lint.per-file-ignores = { "tasks.py" = ["PT028"] }  # `test` is an invoke task, not a pytest test
 lint.select = [
   "E",
   "F",

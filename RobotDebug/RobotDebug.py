@@ -3,10 +3,12 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
-from robot.libraries.BuiltIn import BuiltIn
+from robot.api import logger
+from robot.libraries.BuiltIn import BuiltIn, run_keyword_variant
 
 from .debugcmd import DebugCmd, ReplCmd, is_step_mode
 from .globals import StepMode
+from .robotkeyword import run_debug_if
 from .styles import ERROR_STYLE, LOW_VISIBILITY_STYLE, print_output
 from .version import VERSION
 
@@ -189,6 +191,25 @@ class RobotDebug:
         # re-wire stdout so that we can use the cmd module and have readline
         # support
         return self._debug()
+
+    @run_keyword_variant(resolve=1)
+    def debug_if(self, condition, *args):
+        """Run the `Debug` keyword if the given ``condition`` is true.
+
+        *Deprecated.* ``Debug If`` only exists for backwards compatibility with
+        ``robotframework-debuglibrary`` and will be removed in a future
+        release. Use a native Robot Framework ``IF`` block around the `Debug`
+        keyword instead:
+
+        | IF    ${count} < 1
+        |     Debug
+        | END
+        """
+        logger.warn(
+            "'Debug If' is deprecated and will be removed in a future release. "
+            "Use a Robot Framework 'IF' block around the 'Debug' keyword instead."
+        )
+        return run_debug_if(condition, *args)
 
     def _debug(self, muted: bool = False):
         if self.listener.step_mode == StepMode.STOP:

@@ -6,6 +6,14 @@ from robot.libdocpkg.robotbuilder import (
     LibraryDocBuilder,
     ResourceDocBuilder,
 )
+
+try:
+    # Robot Framework 7.4 moved type-doc building out of LibraryDocBuilder
+    # into a dedicated TypeDocBuilder and removed ``_get_type_docs``.
+    from robot.libdocpkg.robotbuilder import TypeDocBuilder
+except ImportError:  # RF < 7.4
+    TypeDocBuilder = None
+
 from robot.libraries import STDLIBS
 from robot.libraries.BuiltIn import BuiltIn
 
@@ -42,12 +50,19 @@ class ImportedResourceDocBuilder(ResourceDocBuilder):
     def build(self, resource):
         libdoc = LibraryDoc(
             name=resource.name,
-            doc=self._get_doc(resource, resource.name),
+            doc=self._resource_doc(resource),
             type="RESOURCE",
             scope="GLOBAL",
         )
         libdoc.keywords = KeywordDocBuilder().build_keywords(deepcopy(resource))
         return libdoc
+
+    def _resource_doc(self, resource):
+        # ResourceDocBuilder._get_doc() gained a ``name`` argument in RF 6.0.
+        try:
+            return self._get_doc(resource, resource.name)
+        except TypeError:  # RF < 6.0
+            return self._get_doc(resource)
 
 
 class ImportedLibraryDocBuilder(LibraryDocBuilder):
@@ -63,5 +78,9 @@ class ImportedLibraryDocBuilder(LibraryDocBuilder):
         )
         libdoc.inits = self._get_initializers(lib)
         libdoc.keywords = KeywordDocBuilder().build_keywords(lib)
-        libdoc.type_docs = self._get_type_docs(libdoc.inits + libdoc.keywords, lib.converters)
+        type_doc_items = libdoc.inits + libdoc.keywords
+        if hasattr(self, "_get_type_docs"):  # RF < 7.4
+            libdoc.type_docs = self._get_type_docs(type_doc_items, lib.converters)
+        elif TypeDocBuilder is not None:  # RF >= 7.4
+            libdoc.type_docs = TypeDocBuilder().build(type_doc_items, lib.converters)
         return libdoc
