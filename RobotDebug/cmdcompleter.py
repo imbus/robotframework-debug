@@ -1,5 +1,4 @@
 import re
-from typing import Optional, Union
 
 from prompt_toolkit.auto_suggest import AutoSuggest, Suggestion
 from prompt_toolkit.buffer import Buffer
@@ -93,7 +92,7 @@ class StatementInformation:
 class CmdCompleter(Completer):
     """Completer for debug shell."""
 
-    def __init__(self, libs, keywords, helps, cmd_repl: Optional[PromptToolkitCmd] = None):
+    def __init__(self, libs, keywords, helps, cmd_repl: PromptToolkitCmd | None = None):
         self.names = []
         self.displays = {}
         self.display_metas = {}
@@ -217,8 +216,11 @@ class CmdCompleter(Completer):
         if len(data_tokens) > 1:
             for arg_token in data_tokens[1:]:
                 if arg_token.value:
-                    arg_name, sep, arg_value = arg_token.value.partition("=")
-                    if sep and arg_name in [*args.positional_or_named, *args.named_only]:
+                    arg_name, sep, _arg_value = arg_token.value.partition("=")
+                    if sep and arg_name in [
+                        *args.positional_or_named,
+                        *args.named_only,
+                    ]:
                         set_named_args.append(arg_name)
                     else:
                         set_pos_args.append(arg_token.value)
@@ -375,7 +377,7 @@ class KeywordAutoSuggestion(AutoSuggest):
     def __init__(self, completer: CmdCompleter):
         self.completer = completer
 
-    def get_suggestion(self, buffer: Buffer, document: Document) -> Union[Suggestion, None]:
+    def get_suggestion(self, buffer: Buffer, document: Document) -> Suggestion | None:
         text = document.text
         completions = [compl.text for compl in self.completer.get_completions(document, None)]
         last_word = KEYWORD_SEP.split(text)[-1]

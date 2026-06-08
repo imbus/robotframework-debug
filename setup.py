@@ -18,7 +18,7 @@ setup(
     name="robotframework-debug",
     version=find_version("RobotDebug/version.py"),
     description="RobotFramework debug shell",
-    long_description=Path("README.rst").read_text(),
+    long_description=Path("README.md").read_text(),
     long_description_content_type=("text/x-rst"),
     author="René Rohner",
     author_email="snooz@postoe.de",

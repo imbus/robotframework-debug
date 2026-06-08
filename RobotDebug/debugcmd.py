@@ -1,7 +1,6 @@
 import difflib
 import os
 import time
-from typing import List, Tuple
 
 from prompt_toolkit.shortcuts import clear
 from prompt_toolkit.styles import merge_styles
@@ -160,7 +159,7 @@ Access https://github.com/imbus/robotframework-debug for more details.\
             if lib:
                 print_output("< Keywords of library", lib.name)
                 for keyword in get_lib_keywords(lib):
-                    print_output(f"   {keyword.name}\t", keyword.shortdoc)
+                    print_output(f"   {keyword.name}\t", keyword.short_doc)
 
     do_k = do_keywords
 
@@ -274,7 +273,7 @@ def is_step_mode():
     return context.in_step_mode
 
 
-def run_command(dbg_cmd, command: str) -> List[Tuple[str, str]]:
+def run_command(dbg_cmd, command: str) -> list[tuple[str, str]]:
     """Run a command in robotframewrk environment."""
     dbg_cmd.last_keyword_exec_time = 0
     if not command:

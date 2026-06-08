@@ -1,5 +1,4 @@
 from pathlib import Path
-from typing import List, Tuple
 
 from pygments.token import Token
 
@@ -15,27 +14,23 @@ LINE_NO_TOKEN = Token.Operator.LineNumber
 def print_source_lines(style, source_file, lineno, before_and_after=5):
     if not source_file or not lineno:
         return
-
-    Path(
-        source_file
-    ).open().readlines()  # noqa: SIM115  TODO: not sure why i did this. Maybe to check if file is actually readable...
-    prefixed_token = get_pygments_token_from_file(lineno, source_file)
-    printable_token = filter_token_by_lineno(
-        prefixed_token, lineno - before_and_after, lineno + before_and_after + 1
-    )
-    print_pygments_styles(printable_token, style)
+    with Path(source_file).open() as f:
+        f.readlines()
+        prefixed_token = get_pygments_token_from_file(lineno, source_file)
+        printable_token = filter_token_by_lineno(
+            prefixed_token, lineno - before_and_after, lineno + before_and_after + 1
+        )
+        print_pygments_styles(printable_token, style)
 
 
 def print_test_case_lines(style, source_file, current_lineno):
     if not source_file or not current_lineno:
         return
-
-    Path(
-        source_file
-    ).open().readlines()  # noqa: SIM115  TODO: not sure why i did this. Maybe to check if file is actually readable...
-    prefixed_token = get_pygments_token_from_file(current_lineno, source_file)
-    printable_token = filter_token_by_scope(prefixed_token, current_lineno)
-    print_pygments_styles(printable_token, style)
+    with Path(source_file).open() as f:
+        f.readlines()
+        prefixed_token = get_pygments_token_from_file(current_lineno, source_file)
+        printable_token = filter_token_by_scope(prefixed_token, current_lineno)
+        print_pygments_styles(printable_token, style)
 
 
 def filter_token_by_lineno(token, start_lineno, end_lineno):
@@ -83,7 +78,7 @@ def get_pygments_token_from_file(current_lineno, source_file):
     return prefix_line_numbers_and_position(pygments_token, current_lineno)
 
 
-def prefix_line_numbers_and_position(token: List[Tuple], lineno):
+def prefix_line_numbers_and_position(token: list[tuple], lineno):
     """prefix each line with a pygment token of line number and add an arrow in the line of lineno"""
     line_number = 1
     yield LINE_NO_TOKEN, f"{line_number:>3}   "
@@ -118,13 +113,7 @@ def _find_first_lineno(lines, begin_lineno):
 
 
 def _inside_test_case_block(line):
-    if line.startswith(" "):
-        return True
-    if line.startswith("\t"):
-        return True
-    if line.startswith("#"):
-        return True
-    return False
+    return line.startswith((" ", "\t", "#"))
 
 
 def _print_lines(lines, start_index, end_index, current_lineno):

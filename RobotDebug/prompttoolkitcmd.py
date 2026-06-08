@@ -14,6 +14,8 @@ from prompt_toolkit.lexers import PygmentsLexer
 from prompt_toolkit.output import ColorDepth
 from prompt_toolkit.shortcuts import CompleteStyle, prompt
 
+from RobotDebug.styles import print_output
+
 from . import RobotDebug
 from .globals import StepMode
 from .history_app import run_history
@@ -266,6 +268,14 @@ class BaseCmd(cmd.Cmd):
         return True
 
     do_EOF = do_exit
+
+    def do_pdb(self, arg):
+        """Enter the python debuger pdb. For development only."""
+        print_output("PDB:  ", "break into python debugger")
+        print_output("PDB:  ", 'type "c" to continue(exit pdb)')
+        import pdb
+
+        pdb.set_trace()
 
     def get_cmd_names(self):
         """Get all command names of CMD shell."""

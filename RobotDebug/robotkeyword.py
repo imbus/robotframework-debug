@@ -1,6 +1,6 @@
 import tempfile
+from collections.abc import Iterator
 from pathlib import Path
-from typing import Iterator, List, Tuple
 
 from robot.libdocpkg.model import KeywordDoc, LibraryDoc
 from robot.libraries.BuiltIn import BuiltIn
@@ -21,7 +21,7 @@ _resource_keywords_cache = {}
 temp_resources = []
 
 
-def parse_keyword(command) -> Tuple[List[str], str, List[str]]:
+def parse_keyword(command) -> tuple[list[str], str, list[str]]:
     """Split a robotframework keyword string."""
     # TODO use robotframework functions
     variables = []
@@ -38,7 +38,7 @@ def parse_keyword(command) -> Tuple[List[str], str, List[str]]:
     return variables, keyword, args
 
 
-def get_lib_keywords(library) -> List[KeywordDoc]:
+def get_lib_keywords(library) -> list[KeywordDoc]:
     """Get keywords of imported library."""
     if library.name not in _lib_keywords_cache:
         if isinstance(library, ResourceFile):
@@ -58,7 +58,7 @@ def get_keywords() -> Iterator[KeywordDoc]:
         yield from get_lib_keywords(lib)
 
 
-def find_keyword(keyword_name) -> List[KeywordDoc]:
+def find_keyword(keyword_name) -> list[KeywordDoc]:
     keyword_name = keyword_name.lower()
     return [
         keyword
@@ -86,22 +86,22 @@ Fake Test
 
 
 def _import_resource_from_string(command):
-    res_file = tempfile.NamedTemporaryFile(
+    with tempfile.NamedTemporaryFile(
         mode="w",
         prefix="RobotDebug_keywords_",
         suffix=".resource",
         encoding="utf-8",
         delete=False,
-    )
-    resource_path = Path(res_file.name)
-    try:
-        res_file.write(command)
-        res_file.close()
-        temp_resources.insert(0, str(resource_path.stem))
-        BuiltIn().import_resource(resource_path.resolve().as_posix())
-        BuiltIn().set_library_search_order(*temp_resources)
-    finally:
-        resource_path.unlink(missing_ok=True)
+    ) as res_file:
+        resource_path = Path(res_file.name)
+        try:
+            res_file.write(command)
+            res_file.close()
+            temp_resources.insert(0, str(resource_path.stem))
+            BuiltIn().import_resource(resource_path.resolve().as_posix())
+            BuiltIn().set_library_search_order(*temp_resources)
+        finally:
+            resource_path.unlink(missing_ok=True)
 
 
 def _get_assignments(body_elem):

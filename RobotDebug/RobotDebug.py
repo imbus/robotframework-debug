@@ -44,7 +44,10 @@ class Listener:
 
         path = attrs["source"]
         if path and Path(path).exists() and path not in self.source_files:
-            self.source_files[path] = Path(path).open().readlines()  # noqa: SIM115
+            if Path(path).is_dir() and (Path(path) / "__init__.robot").exists():
+                path = Path(path) / "__init__.robot"
+            with Path(path).open() as f:
+                self.source_files[path] = f.readlines()
         lineno = attrs["lineno"]
         self.library.current_source_path = path
         self.library.current_source_line = lineno
@@ -58,7 +61,9 @@ class Listener:
         self.last_keyword_layer = self.keyword_layer
 
         print_output(
-            "", f"{Path(path).relative_to(Path.cwd())}:{lineno}", style=LOW_VISIBILITY_STYLE
+            "",
+            f"{Path(path).relative_to(Path.cwd())}:{lineno}",
+            style=LOW_VISIBILITY_STYLE,
         )
         line = self.source_files[path][lineno - 1]
         print_output(f"{lineno} ->", line.rstrip())
@@ -162,7 +167,7 @@ class RobotDebug:
         """Imports a variable file with the given path and optional arguments.
 
         These variables override possible existing variables with
-        the same names. 
+        the same names.
 
         The given path must be absolute or found from
         [http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html##module-search-path|search path].

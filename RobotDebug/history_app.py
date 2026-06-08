@@ -74,7 +74,7 @@ def run_history(context):
         ),
     ]
     if kw_history:
-        buffer2.text = f"\n#{BORDER.HORIZONTAL*35}\n".join(kw_history)
+        buffer2.text = f"\n#{BORDER.HORIZONTAL * 35}\n".join(kw_history)
         buffer2.cursor_position = len(buffer2.text)
         buffer2.read_only = Always()
         window2 = Window(

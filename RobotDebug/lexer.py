@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import ClassVar, Dict, List
+from typing import ClassVar
 
 from pygments.lexer import Lexer
 from pygments.token import Token, _TokenType
@@ -56,9 +56,9 @@ def get_variable_token(token_list):
 class RobotFrameworkLocalLexer(Lexer):
     name = "RobotFramework"
     url = "http://robotframework.org"
-    aliases: ClassVar[List[str]] = ["robotframework"]
-    filenames: ClassVar[List[str]] = ["*.robot", "*.resource"]
-    mimetypes: ClassVar[List[str]] = ["text/x-robotframework"]
+    aliases: ClassVar[list[str]] = ["robotframework"]
+    filenames: ClassVar[list[str]] = ["*.robot", "*.resource"]
+    mimetypes: ClassVar[list[str]] = ["text/x-robotframework"]
 
     # PYGMENTS_STANDARD_TYPES = {
     #     Token: '',
@@ -152,7 +152,7 @@ class RobotFrameworkLocalLexer(Lexer):
     #     Generic.Traceback: 'gt',
     # }
 
-    ROBOT_TO_PYGMENTS: ClassVar[Dict[str, _TokenType]] = {
+    ROBOT_TO_PYGMENTS: ClassVar[dict[str, _TokenType]] = {
         "HEADER": Token.Keyword.Namespace,
         "DEFINITION": Token.Name.Class,
         "SETTING HEADER": Token.Keyword.Namespace,
@@ -221,33 +221,6 @@ class RobotFrameworkLocalLexer(Lexer):
         options["tabsize"] = 2
         options["encoding"] = "UTF-8"
         Lexer.__init__(self, **options)
-
-    # def parse_doc(self, document):
-    #     text = document.text
-    #     cursor_col = document.cursor_position_col
-    #     cursor_row = document.cursor_position_row
-    #     doc_tokens = list(Tokenizer().tokenize(text))
-    #     # statements = _tokens_to_statements(tok)
-    #     statement_at_cursor, token_at_cursor = self.tokenize_statement(cursor_col, cursor_row, doc_tokens)
-    #     pygments_tokens = list(RobotFrameworkLexer().get_tokens_unprocessed(text))
-    #     return doc_tokens, statement_at_cursor, token_at_cursor
-    #
-    # def tokenize_statement(self, cursor_col, cursor_row, doc_tokens):
-    #     statement_at_cursor = None
-    #     token_at_cursor = None
-    #     for statement in doc_tokens:
-    #         content_token = [token for token in statement if token.type not in ["SEPARATOR", "EOL", "CONTINUATION"]]
-    #         kwl = KeywordCallLexer(ResourceFileContext())
-    #         kwl.input(content_token)
-    #         kwl._lex_as_keyword_call()
-    #         if not token_at_cursor:
-    #             for token in statement:
-    #                 if token.lineno - 1 == cursor_row:
-    #                     if token.col_offset <= cursor_col < token.end_col_offset:
-    #                         token_at_cursor = token
-    #                         statement_at_cursor = statement
-    #                         break
-    #     return statement_at_cursor, token_at_cursor
 
     def get_tokens_unprocessed(self, text):
         token_list = get_robot_token(text)

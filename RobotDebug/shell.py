@@ -38,7 +38,7 @@ def shell():
         test_file.flush()
 
         if len(sys.argv) > 1:
-            args = sys.argv[1:] + [test_file.name]
+            args = [*sys.argv[1:], test_file.name]
         else:
             args = [*default_no_logs, test_file.name]
 

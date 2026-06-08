@@ -1,5 +1,5 @@
 [tool.black]
-target-version = ['py37']
+target-version = ['py310']
 line-length = 100
 
 [tool.ruff]
@@ -8,7 +8,10 @@ exclude = [
   "__pycache__",
   "tests/"
 ]
+target-version = "py310"
+line-length = 100
 lint.ignore = [
+  "ISC001",
   "B008",  # do not perform function calls in argument defaults
   "E501",  # line too long
   "N815",  # mixedCase variable in class scope
@@ -18,7 +21,6 @@ lint.ignore = [
   "N999",  # Invalid module name: 'Browser'
   "PLR0913",  # too many arguments
 ]
-target-version = "py37"
 lint.select = [
   "E",
   "F",
