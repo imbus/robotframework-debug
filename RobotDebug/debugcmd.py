@@ -158,14 +158,22 @@ Access https://github.com/imbus/robotframework-debug for more details.\
             print_error("< not found library", lib_name)
             return
         for lib in matched:
-            if lib:
-                print_output("< Keywords of library", lib.name)
-                for keyword in get_lib_keywords(lib):
-                    # ``short_doc`` is RF >= 7; ``shortdoc`` on older releases.
-                    short_doc = getattr(keyword, "short_doc", None) or getattr(
-                        keyword, "shortdoc", ""
-                    )
-                    print_output(f"   {keyword.name}\t", short_doc)
+            if not lib:
+                continue
+            print_output("< Keywords of library", lib.name)
+            try:
+                keywords = get_lib_keywords(lib)
+            except Exception as exc:
+                # Don't let one library's doc-build error silently abort the
+                # whole listing; report it and continue with the next library.
+                print_error("   ! could not read keywords:", repr(exc))
+                continue
+            for keyword in keywords:
+                # ``short_doc`` is RF >= 7; ``shortdoc`` on older releases.
+                short_doc = getattr(keyword, "short_doc", None) or getattr(
+                    keyword, "shortdoc", ""
+                )
+                print_output(f"   {keyword.name}\t", short_doc)
 
     do_k = do_keywords
 
