@@ -62,8 +62,12 @@ def matrix(c, only=None, keep=False):
 
 @task
 def build(c):
-    """Build the sdist and wheel with the Flit backend."""
-    c.run("python -m build", echo=True)
+    """Build the sdist and wheel with Flit.
+
+    Uses --no-use-vcs so the build works regardless of the git state and
+    selects sdist contents from [tool.flit.sdist] in pyproject.toml.
+    """
+    c.run("flit build --no-use-vcs", echo=True)
 
 
 @task

@@ -157,17 +157,18 @@ Packaging was migrated from `setup.py`/`setup.cfg` (removed) to a PEP 621
 ### Build & verify
 
 ```bash
-invoke build           # python -m build  → dist/*.whl, dist/*.tar.gz
+invoke build           # flit build --no-use-vcs → dist/*.whl, dist/*.tar.gz
 ```
 
 Verified: the wheel carries the correct metadata (`Summary` from the docstring,
-`Version 4.5.0`, all four dependencies, both entry points); a clean install of
-the wheel into a fresh venv produces a working `irobot` and
-`RobotDebug.__version__ == "4.5.0"`.
+the `__version__`, all four dependencies, both entry points); a clean install of
+the wheel into a fresh venv produces a working `irobot` and a matching
+`RobotDebug.__version__`.
 
-> Note: `flit build` (the Flit CLI) refuses to build with a dirty git tree;
-> `invoke build` uses `python -m build`, which drives the same `flit_core`
-> backend without that check.
+> Note: plain `flit build` uses git to select the sdist contents and refuses on
+> a dirty tree. `invoke build` passes `--no-use-vcs` so it works regardless of
+> git state and selects sdist files from `[tool.flit.sdist]` instead — this is
+> also the direction Flit's own default is moving.
 
 ---
 
