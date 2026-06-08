@@ -36,6 +36,12 @@ def test(c, suite=SUITES, verbose=False, outputdir="results"):
 
 
 @task
+def utest(c):
+    """Run the pytest unit/characterization tests (tests/utest)."""
+    c.run("pytest", echo=True)
+
+
+@task
 def lint(c, fix=False):
     """Run ruff over the package and tooling (use --fix to auto-fix)."""
     c.run(f"ruff check {'--fix ' if fix else ''}{SOURCES}", echo=True)
@@ -87,6 +93,6 @@ def clean(c):
         c.run(f"rm -rf {pattern}", echo=True, warn=True)
 
 
-@task(pre=[lint], post=[test])
+@task(pre=[lint, utest], post=[test])
 def check(c):
-    """Lint then run the acceptance suite (the recommended pre-commit check)."""
+    """Lint, run unit tests, then the acceptance suite (recommended pre-commit check)."""

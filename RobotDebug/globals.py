@@ -4,17 +4,15 @@ from enum import Enum
 from robot.version import get_version
 
 
-class SingletonContext:
-    in_step_mode = False
-    last_command = ""
+class _Context:
+    """Mutable shell-wide state, shared through the module-level ``context``."""
 
-    def __new__(cls):
-        if not hasattr(cls, "instance"):
-            cls.instance = super().__new__(cls)
-        return cls.instance
+    def __init__(self):
+        self.in_step_mode = False
+        self.last_command = ""
 
 
-context = SingletonContext()
+context = _Context()
 
 
 class StepMode(str, Enum):

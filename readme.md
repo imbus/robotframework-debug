@@ -116,7 +116,7 @@ Use `exit` or keys `Ctrl+D` to exit the interactive shell.
 
 Use `clear` or `cls` to clear the screen.
 
-The interactive shell supports auto-completion for robotframework keywords and commands. Try input BuiltIn. then hit `Control + Space` key to feel it.
+The interactive shell supports auto-completion for robotframework keywords and commands. Try input BuiltIn. then hit `Control + Space` key to feel it. If your terminal intercepts `Control + Space` (for example the VS Code integrated terminal), use `Control + N` (next) or `Control + P` (previous) instead.
 
 You can use the `F5` key to enable or disable live completion.
 Live completion ON:

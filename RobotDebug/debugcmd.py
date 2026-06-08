@@ -83,7 +83,7 @@ class ReplCmd(PromptToolkitCmd):
 Input Robotframework keywords, or commands listed below.
 Use "libs" or "l" to see available libraries,
 use "keywords" or "k" see the list of library keywords,
-use CTRL+SPACE to autocomplete keywords.
+use CTRL+SPACE (or CTRL+N / CTRL+P) to autocomplete keywords.
 Access https://github.com/imbus/robotframework-debug for more details.\
 """,
             )
@@ -170,9 +170,7 @@ Access https://github.com/imbus/robotframework-debug for more details.\
                 continue
             for keyword in keywords:
                 # ``short_doc`` is RF >= 7; ``shortdoc`` on older releases.
-                short_doc = getattr(keyword, "short_doc", None) or getattr(
-                    keyword, "shortdoc", ""
-                )
+                short_doc = getattr(keyword, "short_doc", None) or getattr(keyword, "shortdoc", "")
                 print_output(f"   {keyword.name}\t", short_doc)
 
     do_k = do_keywords
@@ -229,7 +227,11 @@ Access https://github.com/imbus/robotframework-debug for more details.\
             for style in styles:
                 print_output(f"> {style}    ", style, _get_print_style(style))
             return
-        style = difflib.get_close_matches(args.strip(), styles)[0]
+        matches = difflib.get_close_matches(args.strip(), styles)
+        if not matches:
+            print_error("< unknown style:", args.strip())
+            return
+        style = matches[0]
         self.prompt_style = merge_styles(
             [BASE_STYLE, style_from_pygments_cls(get_style_by_name(style))]
         )

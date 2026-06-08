@@ -14,13 +14,7 @@ try:
 except ImportError:  # RF < 7.4
     TypeDocBuilder = None
 
-from robot.libraries import STDLIBS
 from robot.libraries.BuiltIn import BuiltIn
-
-
-def get_builtin_libs():
-    """Get robotframework builtin library names."""
-    return list(STDLIBS)
 
 
 def get_libs():

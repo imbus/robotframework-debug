@@ -4,7 +4,7 @@ import tempfile
 from collections.abc import Iterator
 from pathlib import Path
 
-from robot.libdocpkg.model import KeywordDoc, LibraryDoc
+from robot.libdocpkg.model import KeywordDoc
 from robot.libraries.BuiltIn import BuiltIn
 from robot.parsing import get_model
 from robot.running import TestSuite
@@ -13,44 +13,20 @@ try:
     from robot.running import UserLibrary as ResourceFile
 except ImportError:
     from robot.running import ResourceFile
-from robot.variables.search import is_variable
 
-from .globals import KEYWORD_SEP
 from .robotlib import ImportedLibraryDocBuilder, ImportedResourceDocBuilder, get_libs
 
 _lib_keywords_cache = {}
-_resource_keywords_cache = {}
 temp_resources = []
-
-
-def parse_keyword(command) -> tuple[list[str], str, list[str]]:
-    """Split a robotframework keyword string."""
-    # TODO use robotframework functions
-    variables = []
-    keyword = ""
-    args = []
-    parts = KEYWORD_SEP.split(command)
-    for part in parts:
-        if not keyword and is_variable(part.rstrip("=").strip()):
-            variables.append(part.rstrip("=").strip())
-        elif not keyword:
-            keyword = part
-        else:
-            args.append(part)
-    return variables, keyword, args
 
 
 def get_lib_keywords(library) -> list[KeywordDoc]:
     """Get keywords of imported library."""
     if library.name not in _lib_keywords_cache:
         if isinstance(library, ResourceFile):
-            _lib_keywords_cache[library.name]: LibraryDoc = ImportedResourceDocBuilder().build(
-                library
-            )
+            _lib_keywords_cache[library.name] = ImportedResourceDocBuilder().build(library)
         else:
-            _lib_keywords_cache[library.name]: LibraryDoc = ImportedLibraryDocBuilder().build(
-                library
-            )
+            _lib_keywords_cache[library.name] = ImportedLibraryDocBuilder().build(library)
     return _lib_keywords_cache[library.name].keywords
 
 

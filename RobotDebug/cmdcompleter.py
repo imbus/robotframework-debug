@@ -13,34 +13,6 @@ from .prompttoolkitcmd import PromptToolkitCmd
 from .robotkeyword import normalize_kw
 from .styles import _get_style_completions
 
-# def find_token_at_cursor(cursor_col, cursor_row, statement):
-#     statement_type = None
-#     for token in statement.tokens:
-#         if token.type in ["KEYWORD", "IF", "FOR", "ELSE", "ELSE IF"]:
-#             statement_type = token.type
-#         if (
-#             token.lineno == cursor_row + 1
-#             and token.col_offset <= cursor_col <= token.end_col_offset
-#         ):
-#             return statement_type, token, cursor_col - token.col_offset
-#     return None, None, None
-#
-#
-# def find_statement_details_at_cursor(cursor_col, cursor_row, statements):
-#     for statement in statements:
-#         if not statement:
-#             continue
-#         if (
-#             statement.lineno <= cursor_row + 1 <= statement.end_lineno
-#             and statement.col_offset <= cursor_col <= statement.end_col_offset
-#         ):
-#             statement_type, token, cursor_pos = find_token_at_cursor(
-#                 cursor_col, cursor_row, statement
-#             )
-#             if token:
-#                 return statement, statement_type, token, cursor_pos
-#     return None, None, None, None
-
 
 class StatementInformation:
     def __init__(self, cursor_col, cursor_row, statements):
@@ -192,7 +164,6 @@ class CmdCompleter(Completer):
     ):  # TODO: here is an issue. if more positional args are set, than existing, named_only will be removed from proposal
         for index, arg in enumerate([*args.positional_or_named, *args.named_only]):
             if index + 1 > len(set_pos_args):
-                # suffix = "=" if arg in [*args.positional_or_named, *args.named_only] else ""
                 yield Completion(
                     f"{arg}=",
                     0,
@@ -226,9 +197,13 @@ class CmdCompleter(Completer):
                         set_pos_args.append(arg_token.value)
         return set_named_args, set_pos_args
 
+    def _set_toolbar_key(self, statement_type, token, cursor_pos):
+        # cmd_repl is optional (e.g. when the completer is used standalone).
+        if self.cmd_repl is not None:
+            self.cmd_repl.set_toolbar_key(statement_type, token, cursor_pos)
+
     def get_completions(self, document, complete_event):
         """Compute suggestions."""
-        # RobotFrameworkLocalLexer().parse_doc(document)
         text = document.current_line_before_cursor
         cursor_col = document.cursor_position_col
         cursor_row = document.cursor_position_row
@@ -240,7 +215,7 @@ class CmdCompleter(Completer):
         previous_token = statement_info.previous_token
         token = statement_info.token
         cursor_pos = statement_info.cursor_pos
-        self.cmd_repl.set_toolbar_key(statement_type, token, cursor_pos)
+        self._set_toolbar_key(statement_type, token, cursor_pos)
         if text == "":
             yield from []
         elif "FOR".startswith(text):

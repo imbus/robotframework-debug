@@ -42,14 +42,31 @@ kb = KeyBindings()
 
 
 @kb.add("c-space")
+@kb.add("c-n")
 def _(event):
     """
-    Start auto completion. If the menu is showing already, select the next
+    Open the completion menu. If the menu is showing already, select the next
     completion.
+
+    ``Ctrl-N`` is an alternative to ``Ctrl-Space`` for terminals that intercept
+    Ctrl-Space (e.g. the VS Code integrated terminal).
     """
     b: Buffer = event.app.current_buffer
     if b.complete_state:
         b.complete_next()
+    else:
+        b.start_completion(select_first=False)
+
+
+@kb.add("c-p")
+def _(event):
+    """
+    Open the completion menu. If the menu is showing already, select the
+    previous completion.
+    """
+    b: Buffer = event.app.current_buffer
+    if b.complete_state:
+        b.complete_previous()
     else:
         b.start_completion(select_first=False)
 

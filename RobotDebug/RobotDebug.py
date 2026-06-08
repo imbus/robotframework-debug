@@ -116,6 +116,13 @@ class RobotDebug:
         return cls._instance
 
     def __init__(self, **kwargs):
+        # The instance is a singleton (see __new__); __init__ would otherwise
+        # re-run on every construction and clobber the first setup — e.g. a
+        # later `Library RobotDebug` import resetting the listener's
+        # cli_listener back to False. Initialise exactly once: first call wins.
+        if getattr(self, "_initialized", False):
+            return
+        self._initialized = True
         self.cli_listener = kwargs.get("cli_listener", False)
         self.ROBOT_LIBRARY_LISTENER = (
             Listener(self, is_library=True)
@@ -172,7 +179,7 @@ class RobotDebug:
         the same names.
 
         The given path must be absolute or found from
-        [http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html##module-search-path|search path].
+        [http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#module-search-path|search path].
         Forward slashes can be used as path separator regardless
         the operating system.
 
@@ -184,7 +191,7 @@ class RobotDebug:
         BuiltIn().import_variables(path, *args)
 
     def debug(self):
-        """Open a interactive shell, run any RobotFramework keywords.
+        """Open an interactive shell, run any RobotFramework keywords.
 
         Keywords separated by two space or one tab, and Ctrl-D to exit.
         """

@@ -36,6 +36,7 @@ dev = [
   "ruff >= 0.4",
   "black >= 24.0",
   "pexpect >= 4.8",
+  "pytest >= 8.0",
   "flit >= 3.4",
 ]
 
@@ -47,6 +48,9 @@ Issues = "https://github.com/imbus/robotframework-debug/issues"
 [project.scripts]
 irobot = "RobotDebug.shell:shell"
 robotdebug = "RobotDebug.shell:shell"
+
+[tool.pytest.ini_options]
+testpaths = ["tests/utest"]
 
 [tool.flit.module]
 name = "RobotDebug"
