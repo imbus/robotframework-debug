@@ -1,57 +1,29 @@
-# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
-name: test
+name: PR Testing
 
 on:
-  push:
   pull_request:
-    branches: [ master ]
+    types: [opened, synchronize, reopened]
 
 jobs:
-  build:
-    name: py-${{ matrix.python-version }} rf-${{ matrix.robotframework-version }} ${{ matrix.platform }}
-    runs-on: ${{ matrix.platform }}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, "3.10"]
-        robotframework-version: [3.2, 4.1, 5.0]
-        platform: [ubuntu-latest, macOS-latest]
-        exclude:
-          - python-version: 3.6
-            platform: macOS-latest
+  test:
+    runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v5
       with:
-        python-version: ${{ matrix.python-version }}
+        enable-cache: true
+
+    - name: Set up Python
+      run: uv python pin 3.11
+
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install flake8
-        pip install coverage
-        pip install robotframework==${{ matrix.robotframework-version }}
-    - name: Lint with flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=80 --statistics
-    - name: Test
-      run: |
-        python setup.py develop
-        python setup.py test
-    - name: Generate coverage report
-      run: |
-        coverage xml
-    - name: Send coverage report to codecov
-      uses: codecov/codecov-action@v1
-      with:
-        file: ./coverage.xml
-    - name: Send coverage report to codeclimate
-      uses: paambaati/codeclimate-action@v2.6.0
-      with:
-        coverageCommand: echo "Ignore rerun"
-        coverageLocations: ${{github.workspace}}/coverage.xml:coverage.py
-      env:
-        CC_TEST_REPORTER_ID: ${{secrets.CC_TEST_REPORTER_ID}}
+        uv venv
+        uv pip install -e ".[dev]"
+
+    - name: Run tests
+      run: source .venv/bin/activate && invoke check
