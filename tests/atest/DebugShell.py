@@ -18,8 +18,8 @@ and cleans output.
 from __future__ import annotations
 
 import re
+import subprocess
 import sys
-import tempfile
 
 # Escape sequences emitted by the terminal for the keys RobotDebug binds for
 # step debugging. Tests use the readable ``<F8>`` placeholders instead.
@@ -67,20 +67,26 @@ class DebugShell:
         cmd.append(task)
         return cmd
 
-    def write_stdin_file(self, script: str) -> str:
-        """Expand ``<F8>`` style placeholders and write *script* to a temp file.
+    def run_with_piped_stdin(
+        self, cmd: list[str], script: str, timeout: float = 45, cwd: str = ""
+    ) -> str:
+        """Run *cmd*, feed *script* through a real pipe, return merged output.
 
-        Returns the path, suitable for ``Run Process    ...    stdin=${path}``.
+        ``<F8>`` style placeholders are expanded first. A pipe is required:
+        when stdin is a regular file prompt_toolkit exits immediately without
+        reading any commands.
         """
         for placeholder, sequence in FUNCTION_KEYS.items():
             script = script.replace(placeholder, sequence)
-        handle = tempfile.NamedTemporaryFile(
-            mode="w", prefix="rfdebug_stdin_", suffix=".txt",
-            encoding="utf-8", delete=False,
+        result = subprocess.run(
+            list(cmd),
+            input=script.encode("utf-8"),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            timeout=float(timeout),
+            cwd=cwd or None,
         )
-        handle.write(script)
-        handle.close()
-        return handle.name
+        return result.stdout.decode("utf-8", errors="replace")
 
     def clean_output(self, text: str) -> str:
         """Remove ANSI escape sequences and carriage returns from *text*."""

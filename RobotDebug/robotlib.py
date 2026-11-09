@@ -41,6 +41,13 @@ def match_libs(name=""):
 
 
 class ImportedResourceDocBuilder(ResourceDocBuilder):
+    def __init__(self, doc_format=None):
+        # RF 7.5 made ``doc_format`` a required argument of ResourceDocBuilder.
+        try:
+            super().__init__(doc_format)
+        except TypeError:  # RF < 7.5
+            super().__init__()
+
     def build(self, resource):
         libdoc = LibraryDoc(
             name=resource.name,
@@ -60,6 +67,14 @@ class ImportedResourceDocBuilder(ResourceDocBuilder):
 
 
 class ImportedLibraryDocBuilder(LibraryDocBuilder):
+    def __init__(self, doc_format=None):
+        # RF 7.5 made ``doc_format`` a required argument of LibraryDocBuilder.
+        try:
+            super().__init__(doc_format)
+        except TypeError:  # RF < 7.5
+            super().__init__()
+        self.doc_format = doc_format
+
     def build(self, lib):
         libdoc = LibraryDoc(
             doc=self._get_doc(lib),
@@ -76,5 +91,12 @@ class ImportedLibraryDocBuilder(LibraryDocBuilder):
         if hasattr(self, "_get_type_docs"):  # RF < 7.4
             libdoc.type_docs = self._get_type_docs(type_doc_items, lib.converters)
         elif TypeDocBuilder is not None:  # RF >= 7.4
-            libdoc.type_docs = TypeDocBuilder().build(type_doc_items, lib.converters)
+            try:
+                libdoc.type_docs = TypeDocBuilder().build(
+                    type_doc_items, lib.converters, libdoc.doc_format
+                )
+            except TypeError:  # RF 7.4
+                libdoc.type_docs = TypeDocBuilder().build(
+                    type_doc_items, lib.converters
+                )
         return libdoc
