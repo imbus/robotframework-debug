@@ -49,13 +49,10 @@ Lines
     RETURN    ${script}
 
 Drive Shell
-    [Documentation]    Write ${input} to a temp file, run ${cmd} with that file
-    ...    as stdin (stderr merged into stdout), and return cleaned output.
+    [Documentation]    Pipe ${input} to the stdin of ${cmd} (stderr merged into stdout), and return cleaned output.
     [Arguments]    ${cmd}    ${input}
-    ${stdin_file}=    Write Stdin File    ${input}
-    ${result}=    Run Process    @{cmd}
-    ...    stdin=${stdin_file}    stderr=STDOUT    timeout=${TIMEOUT}    cwd=${CURDIR}/../../..
-    ${output}=    Clean Output    ${result.stdout}
+    ${raw}=    Run With Piped Stdin    ${cmd}    ${input}
+    ...    timeout=45    cwd=${CURDIR}/../../..
+    ${output}=    Clean Output    ${raw}
     Log    ${output}
-    Remove File    ${stdin_file}
     RETURN    ${output}
