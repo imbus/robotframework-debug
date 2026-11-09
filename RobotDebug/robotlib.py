@@ -41,6 +41,13 @@ def match_libs(name=""):
 
 
 class ImportedResourceDocBuilder(ResourceDocBuilder):
+    def __init__(self, doc_format=None):
+        # RF 7.5 made ``doc_format`` a required argument of ResourceDocBuilder.
+        try:
+            super().__init__(doc_format)
+        except TypeError:  # RF < 7.5
+            super().__init__()
+
     def build(self, resource):
         libdoc = LibraryDoc(
             name=resource.name,
