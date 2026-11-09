@@ -3,7 +3,6 @@ build
 dist
 *.pyc
 *.txt
-*.robot
 log.html
 output.xml
 report.html
