@@ -42,6 +42,7 @@ MATRIX: list[tuple[str, str]] = [
     ("7.2.2", "3.12"),
     ("7.3.2", "3.12"),
     ("7.4.2", "3.12"),
+    ("7.5.1", "3.12"),
 ]
 
 # Friendly labels for the suite files, in display order.
