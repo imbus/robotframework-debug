@@ -22,27 +22,77 @@ Usage::
 from __future__ import annotations
 
 import argparse
+import requests
 import shutil
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
+from datetime import datetime
+from packaging.version import parse
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
 SUITES = REPO / "tests" / "atest" / "suites"
 WORKDIR = REPO / ".matrix"
 
+def get_package_versions(package_name: str) -> list[str]:
+    # PEP 691 simple API endpoint
+    url = f"https://pypi.org/simple/{package_name}/"
+    headers = {"Accept": "application/vnd.pypi.simple.v1+json"}
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+    return response.json().get("versions", [])
+
+def group_by_major_version(version_strings: list[str]) -> list[list[str]]:
+    sorted_version_strings = sorted(version_strings, reverse=False)
+    versions = (parse(v) for v in sorted_version_strings)
+    release_versions = filter(lambda v: not (v.is_prerelease or v.is_devrelease), versions)
+    versions_dict = {}
+
+    for version in release_versions:
+        major, minor = version.major, version.minor
+        major_minor = f'{major}.{minor}'
+        versions_dict.setdefault(major, [])
+        if major_minor not in versions_dict[major]:
+            versions_dict[major].append(major_minor)
+
+    return list(versions_dict.values())
+
+def get_last_versions(versions: list[str], last_major: int, last_minor: int):
+    grouped_by_major = group_by_major_version(versions)
+    return [
+        version
+        for minor_versions in grouped_by_major[-last_major:]
+        for version in minor_versions[-last_minor:]
+    ]
+
+def get_python_releases() -> list[dict]:
+    response = requests.get("https://endoflife.date/api/python.json", timeout=10)
+    response.raise_for_status()
+    return response.json()
+
+def get_supported_versions(releases: list[dict]):
+    today = datetime.now().date()
+    supported_versions = []
+
+    for release in releases:
+        eol = release["eol"]
+        eol_date = datetime.strptime(eol, "%Y-%m-%d").date()
+        version = release["cycle"]
+        if eol_date > today:
+            supported_versions.append(version)
+
+    return supported_versions
+
+supported_python_versions = get_supported_versions(get_python_releases())
+last_robotframework_versions = get_last_versions(get_package_versions("robotframework"), last_major=1, last_minor=3)
+
+
 # (Robot Framework version, Python feature version to pair it with).
-# The Python is chosen to sit inside each RF release's supported window.
 MATRIX: list[tuple[str, str]] = [
-    ("5.0.1", "3.10"),
-    ("6.0.2", "3.11"),
-    ("6.1.1", "3.11"),
-    ("7.0.1", "3.11"),
-    ("7.2.2", "3.12"),
-    ("7.3.2", "3.12"),
-    ("7.4.2", "3.12"),
-    ("7.5.1", "3.12"),
+    (rf_version, py_version)
+    for rf_version in last_robotframework_versions
+    for py_version in supported_python_versions 
 ]
 
 # Friendly labels for the suite files, in display order.

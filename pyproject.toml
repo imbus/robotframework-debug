@@ -38,6 +38,8 @@ dev = [
   "pexpect >= 4.8",
   "pytest >= 8.0",
   "flit >= 3.4",
+  "packaging >= 26.3",
+  "requests >= 2.34.2",
 ]
 
 [project.urls]
