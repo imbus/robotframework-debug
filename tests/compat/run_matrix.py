@@ -78,9 +78,10 @@ def get_supported_versions(releases: list[dict]):
     for release in releases:
         eol = release["eol"]
         eol_date = datetime.strptime(eol, "%Y-%m-%d").date()
-        version = release["cycle"]
+        version_str = release["cycle"]
         if eol_date > today:
-            supported_versions.append(version)
+            version = parse(version_str)
+            supported_versions.append(f'{version.major}.{version.minor}')
 
     return supported_versions
 
