@@ -31,4 +31,4 @@ jobs:
 
       - name: Execute invoke matrix
         run: |
-          run: source .venv/bin/activate && invoke matrix
+          source .venv/bin/activate && invoke matrix
