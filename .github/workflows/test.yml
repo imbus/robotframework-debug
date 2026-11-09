@@ -31,6 +31,8 @@ jobs:
   matrix:
     needs: test
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -51,3 +53,9 @@ jobs:
       - name: Execute invoke matrix
         run: |
           source .venv/bin/activate && invoke matrix
+
+      - name: Commit and Push updated compatibility matrix
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Updated compatibility matrix"
+          file_pattern: 'docs/compatibility_matrix.md'
