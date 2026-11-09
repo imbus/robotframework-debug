@@ -96,7 +96,5 @@ class ImportedLibraryDocBuilder(LibraryDocBuilder):
                     type_doc_items, lib.converters, libdoc.doc_format
                 )
             except TypeError:  # RF 7.4
-                libdoc.type_docs = TypeDocBuilder().build(
-                    type_doc_items, lib.converters
-                )
+                libdoc.type_docs = TypeDocBuilder().build(type_doc_items, lib.converters)
         return libdoc
